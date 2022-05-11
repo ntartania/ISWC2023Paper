@@ -2,7 +2,7 @@
 
 Supplemental material for ISWC 2022 paper "Distributed Processing of Property Path Queries in pure SPARQL".
 
-Note: this github account and repository are not 100% anonymous: don't go poking around if you don't want to find out who it belongs to.
+_Note: this github account and repository are not 100% anonymous: don't go poking around if you don't want to find out who it belongs to._
 
 Repo Contents: 
 * Virtual environment configuration file (Vagrantfile)
