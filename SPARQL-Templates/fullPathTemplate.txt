@@ -1,0 +1,21 @@
+{% set ii = namespace(iter = 1) %}
+{% set is = namespace(iter = "1")%}
+{% set ri = namespace(rn = 0) %}
+{% set addQuery = namespace(query = "") %}
+{?r1 <{{fullPath[ri.rn]}}> {% for items in range (fullPath| length-1)  %} <http://www.w3.org/2002/07/owl#>:sameAs*/<{{fullPath[items+1]}}> {% endfor %}}
+{% if fullPath|length > 1 %} {% set ii.iter = ii.iter +1 %}
+UNION
+{
+ ?r{{ii.iter}} <{{fullPath[0]}}><http://www.w3.org/2002/07/owl#>:sameAs* ?sortant{{ii.iter-1}} {% set addQuery.query = addQuery.query + "<" +
+  fullPath[0] + "> " + "<http://www.w3.org/2002/07/owl#>:sameAs* " %}
+}
+{% for items in range (fullPath| length-1) %}
+{% set addQuery.query = addQuery.query + "<" + fullPath[ii.iter-1] + "> " + "<http://www.w3.org/2002/07/owl#>:sameAs* " %}
+{% set is.iter = ii.iter|string %}
+{% set ii.iter = ii.iter + 1 %}
+UNION
+{
+ ?r{{ii.iter}} {{addQuery.query}}
+}
+{% endfor %}
+{% endif %}

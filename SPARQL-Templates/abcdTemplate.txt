@@ -1,0 +1,59 @@
+SELECT * where {
+
+{?r1 <a> <http://www.w3.org/2002/07/owl#>:sameAs*/<b*>  <http://www.w3.org/2002/07/owl#>:sameAs*/<c>  <http://www.w3.org/2002/07/owl#>:sameAs*/<d> }
+
+UNION
+{
+ ?r2 <a> <http://www.w3.org/2002/07/owl#>:sameAs* ?sortant1 FILTER((STRSTARTS(STR(?r2), <{{indomain}}>) && isURI(?sortant1) && !STRSTARTS(STR(?sortant1), <{{indomain}}>)))
+}
+
+UNION
+{
+ ?r3 <a> <http://www.w3.org/2002/07/owl#>:sameAs* <b*> <http://www.w3.org/2002/07/owl#>:sameAs* ?sortant2 FILTER((STRSTARTS(STR(?r3), <{{indomain}}>) && isURI(?sortant2) &&
+ !STRSTARTS(STR(?sortant2), <{{indomain}}>))).
+}
+
+UNION
+{
+ ?r4 <a> <http://www.w3.org/2002/07/owl#>:sameAs* <b*> <http://www.w3.org/2002/07/owl#>:sameAs* <c> <http://www.w3.org/2002/07/owl#>:sameAs* ?sortant3 FILTER((STRSTARTS(STR(?r4),
+ <{{indomain}}>) && isURI(?sortant3) && !STRSTARTS(STR(?sortant3), <{{indomain}}>))).
+}
+
+UNION
+{
+ ?entrant1 <http://www.w3.org/2002/07/owl#>sameAs*/<b*>/<http://www.w3.org/2002/07/owl#>sameAs* ?sortant4 FILTER((STRSTARTS(STR(?entrant1), <{{indomain}}>)
+ && isURI(?sortant4) && !STRSTARTS(STR(?sortant4), <{{indomain}}>)) && ?entrant1 IN ({% for outs in  range (outdomains|length) %}<{{outdomains[outs]}}>{% endfor %})).
+
+
+
+}
+
+UNION
+{
+ ?entrant2 <http://www.w3.org/2002/07/owl#>sameAs*/<b*>/<http://www.w3.org/2002/07/owl#>sameAs*/<c>/<http://www.w3.org/2002/07/owl#>sameAs* ?sortant5 FILTER((STRSTARTS(STR(?entrant2),
+ <{{indomain}}>) && isURI(?sortant5) && !STRSTARTS(STR(?sortant5), <{{indomain}}>)) && ?entrant2 IN ({% for outs in  range (outdomains|length) %}<{{outdomains[outs]}}>{% endfor %})).
+}
+
+UNION
+{
+ ?entrant3 <http://www.w3.org/2002/07/owl#>sameAs*/<b*>/<http://www.w3.org/2002/07/owl#>sameAs*/<c>/<http://www.w3.org/2002/07/owl#>sameAs*/<d>/
+ <http://www.w3.org/2002/07/owl#>sameAs* ?sortant6 FILTER((STRSTARTS(STR(?entrant3), <{{indomain}}>) && isURI(?sortant6) && !STRSTARTS(STR(?sortant6), <{{indomain}}>)) && ?entrant3 IN
+ ({% for outs in  range (outdomains|length) %}<{{outdomains[outs]}}>{% endfor %})).
+
+UNION
+{
+ ?entrant4 <http://www.w3.org/2002/07/owl#>sameAs*/<c>/<http://www.w3.org/2002/07/owl#>sameAs* ?sortant7 FILTER((STRSTARTS(STR(?entrant4), <{{indomain}}>)
+ && isURI(?sortant7) && !STRSTARTS(STR(?sortant7), <{{indomain}}>)) && ?entrant4 IN ({% for outs in  range (outdomains|length) %}<{{outdomains[outs]}}>{% endfor %})).
+}
+
+UNION
+{
+ ?entrant5 <http://www.w3.org/2002/07/owl#>sameAs*/<c>/<http://www.w3.org/2002/07/owl#>sameAs*/<http://www.w3.org/2002/07/owl#>sameAs*/<d>/* ?sortant8 FILTER((STRSTARTS(STR(?entrant5),
+ <{{indomain}}>) && isURI(?sortant8) && !STRSTARTS(STR(?sortant8), <{{indomain}}>)) && ?entrant5 IN ({% for outs in  range (outdomains|length) %}<{{outdomains[outs]}}>{% endfor %})).
+}
+UNION
+{
+ ?entrant6 <http://www.w3.org/2002/07/owl#>sameAs*/<d> FILTER((?entrant6 IN ({% for outs in  range (outdomains|length) %}<{{outdomains[outs]}}>{% endfor %})).
+}
+
+}

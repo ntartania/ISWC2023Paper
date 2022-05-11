@@ -1,0 +1,3 @@
+{% for items in prefixes %}
+    PREFIX {{prefixes[items]['prefix']}}: <{{prefixes[items]['link']}}>
+{% endfor %}

@@ -1,0 +1,5 @@
+SELECT * 
+
+WHERE { 
+    ?a ?b ?c. FILTER(STRSTARTS(STR(?a), "{{domain}}") && isURI(?c) && !STRSTARTS(STR(?c), "{{domain}}"))
+}
