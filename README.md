@@ -8,6 +8,7 @@ Repo Contents:
 * Virtual environment configuration file (Vagrantfile)
 * data from paper: directories dataBlue / dataGreen / dataRed, correspond to subgraphs colored white / gray / black (respectively) in paper
 * Source code (all python code)
+* Documentation of main code (including quick start instructions): RPQ_client_documentation.txt
 
 How to set up the virtual environment:
 - Install VirtualBox (free Oracle virtualization product, see virtualbox.org)
@@ -27,5 +28,6 @@ How to run tests (validation in paper):
 What more can you do?
 - Add more RDF data to the three servers (you can figure out how to provision it in the Vagrantfile, or else add it manually using the Fuseki web interface (accessible at http://localhost:3331/ ... 3333).
 - Add more servers: see the configuration mechanism in the Vagrantfile: you can add another node to the network
+- for all this and more, see RPQ_client_documentation.txt
 
 Note: the paper indicates that the SPARQL endpoints on the network were Virtuoso servers. Unfortunately Virtuoso is buggy and our queries don't work on Virtuoso: we would need to rewrite them to get rid of all multi-source queries. Managing "differently abled" endpoints is future work.
