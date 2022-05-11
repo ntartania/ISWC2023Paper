@@ -1,0 +1,5 @@
+<http://www.green.com/seven> <http://example.com/charlie> <http://www.green.com/eight> .
+<http://www.green.com/eight> <http://example.com/delta> <http://www.green.com/nine>  .
+<http://www.green.com/nine> <http://example.com/echo> <http://www.green.com/ten>  .
+<http://www.green.com/seven> <http://example.com/echo> <http://www.green.com/ten>  .
+<http://www.green.com/ten> <http://example.com/bravo>  <http://www.red.com/twelve>  .
