@@ -1,0 +1,94 @@
+RPQ Client documentation
+========================
+
+- Dependencies:
+RPQ.py: code written for a previous project on regular path queries.
+parse.py: code to manipulate regular expressions and automata. Forked and significantly expanded from another project indicated in file.
+Other libraries are available using pip, etc.
+
+- Classes overview:
+
+Subquery: Convenience class to handle SPARQL (sub)queries of the specific shape used in this project (simple RPQ with filters)
+
+Serveur: Simulates a server with a SPARQL endpoint. Loads graph of data from file and answers queries on its local data (via API, not SPARQL).
+
+Server_proxy: subclass of Serveur, except instead of using data from local file, it acts as a proxy to a real remote SPARQL endpoint, and handles communication with that remote server.
+
+Client: This class takes the original query and manages all the logic of decomposing it and sending queries to servers (or fake servers) to access the distributed graph of data.
+
+
+- Quick start guide:
+(1) Run experiments with distributed data in a set of local files:
+    + The file format for the graph of data is a text file with one line per edge: from_node to_node edge_label (separated by spaces). This is basically n-triples with subject / object / predicate order and no final period. No understanding of RDF concepts such as non-URI values, blank nodes, etc.
+    + Code:
+        regex = "<ex:alpha><ex:bravo>*<ex:charlie><ex:delta>"
+        client = Client("client_name")
+        s1 = Serveur("name1", "http://www.domain1.com", "data_file_1.txt")
+        s2 = Serveur("name2", "http://www.domain2.com", "data_file_2.txt")
+        [...]
+        sn = Serveur("name_n", "http://www.domain_n.com", "data_file_n.txt")
+        #note: client and server names are arbitrary (server names must all be different though), it's mainly for debug. Domains are important: each server has a domain and all 'local' data is in this domain.
+
+        client.initiate([s1, s2, .., sn]) #set up client with all servers
+        
+        start_node_id = "http://www.domain_k.com/node_x" #start node for single-source query node 
+        regex = "<aaa><bbb>*|(<cc>|<dd>)<dd>*" #syntax for regular expressions: place separate tokens in <>, then use usual notation: nothing for concat, | and * for alt/star. Other operators not handled at this point.
+
+        results = c1.run_single_source_query(start_node_id, regex)
+        
+        print(results) # Voila!
+
+
+(2) Run RPQ on remote distributed RDF data, accessed via multiple SPARQl endpoints:
+
+    + For each SPARQL endpoint, you need a URL to access the endpoint (e.g. "http://www.zzz.com/sparql") and a domain (prefix for URIs considered local)
+    + This is guaranteed to work on Apache Jena Fuseki servers. Virtuoso servers seem to have a bug related to large queries with unions, and they don't accept anything looking like a multi-source RPQ -- the decomposed query here has multi-source queries with filters, which could be rewritten as single-source... but Virtuoso doesn't handle them. 
+    + For current experiments most likely the endpoints will be on local virtual machines... this makes no difference, just the URL for each server will be something like http://localhost:3330/z/sparql, with different port numbers.
+    + Code:
+        sp1 = Server_proxy("server_name",'http://www.somewhere.com/sparql', "http://www.domain1.com")
+        sp2 = Server_proxy("serveur_name2",'http://localhost:3330/yay/sparql', "http://www.domain2.com")
+        [...]
+        
+        client2 = Client("client_name")
+        client2.initiate([sp1,sp2,...]) #setup client with server proxy objects to query
+
+        #define query with start node and regular expression
+        regex = "<ex:aaa><dc:bbb>*|(<ex:cc>|<owl:dd>)<owl:dd>*"
+        prefixes = {"ex": "<http://example.com/>", "owl":"<http://www.w3.org/2002/07/owl#>"[...] } # prefixes for SPARQL queries (optional but will be useful with RDF data)
+        start_node = "http://www.mydomain.com/the_node"
+
+        #run query
+        results = client2.run_single_source_query(start_node, regex, prefixes)
+        print(results)
+
+  - API details:
+
+  Serveur
+    - Constructor takes name (arbitrary, but different for the servers associated with a client (used as key)), domain (prefix for "local" URIs), and a file with the graph data. Graph data is custom format -- see above.
+    - set_logging(): debug mode (very verbose)
+    - set_query_prefixes(pref: dict): provide dict of abbreviations to URI prefixes as in ordinary SPARQL queries (used when composing SPARQL queries in subclass). Currently not used for file-based simulation.
+    - get_outgoing_nodes(): returns list of "outgoing" a.k.a remote nodes in local data, i.e. non-local URIs in object position of triples. This is first step in distirbuted RPQ processing.
+    - get_local_response(query_automaton, start_node): Step 2 of distributed RPQ processing: runs a *decomposed query* on the local data. The parameter query_automaton refers to an object representing the decomposition. 
+        + query_automaton is tuple gen_autom, qa_start_state, qa_end_states
+        + gen_autom specifies the generalized automaton dict: {rule_id : (start_state, end_state, regex)}. rule_id is a unique id for each transition in the generalized query automaton (as implemented it's a concatenation of the from/to state identifierss)
+        + qa_start_state indicates which state in the automaton is the start state [automaton state object]
+        + qa_end_states indicates which states in the automaton are accepting (list of automaton state objects). This is not actually used anymore in latest code.
+    
+  Server_proxy:
+    - Constructor takes name, URL of SPARQl endpoint, and domain (URI prefix for local data)
+    - Relevant querying methods override those in Serveur to access remote data rather than file data.
+    - sparqlQuery(query): sends a SPARQL query to the proxied server and returns results as JSON object. This is where actual communication with server happens, and where SPARQL queries / responses are printed to standard output. 
+
+  Client:
+    - Constructor takes arbitrary name
+    - initiate(list_of_servers, logging=False): sets up the servers to be used to access data. logging parameter is optional, if set to true the query processing will be very verbose (used for debugging). Otherwise only the intermediate sparql queries/json responses are printed.
+    - run_single_source_query(start_node, regex, prefixes=None, one_query=True): run single-source RPQ with given start node and regular expression. Handles the full distributed query processing logic. Optional parameters: prefixes=dict of URI prfixes to be included in SPARQl queries, one_query: if set to false, the big SAPRQl query with the union (in the second query processing step) will be split into individual subqueries which are sent separately. May help with some servers that have problems with big queries, or may help with debugging when a specific subquery causes a problem.
+
+    Internal logic methods of interest:
+    - expand_re(regex): contains the logic to build the decomposed query (generalized automaton). Probably the most important and complex algorithm in this project.
+    - get_data_graph(): communicates with the servers to get answers of decomposed query, then builds local graph with regular expressions on edges, matching generalized automaton (will be used to compute final answers).
+    - set_servers_in_out_nodes(): implements first step of query processing: communicates with servers to get list of incoming/outgoing nodes ("replicated nodes", in paper terminology)
+    
+  
+
+
