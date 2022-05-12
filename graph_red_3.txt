@@ -1,0 +1,2 @@
+http://www.red.com/12 http://www.red.com/11 ex:bravo
+http://www.red.com/11 http://www.blue.com/6 ex:charlie

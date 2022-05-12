@@ -1,0 +1,5 @@
+http://www.green.com/7 http://www.green.com/8 ex:charlie
+http://www.green.com/8 http://www.green.com/9 ex:delta
+http://www.green.com/9 http://www.green.com/10 ex:echo
+http://www.green.com/7 http://www.green.com/10 ex:echo
+http://www.green.com/10 http://www.red.com/12 ex:bravo

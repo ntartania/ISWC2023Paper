@@ -1,0 +1,8 @@
+http://www.blue.com/1 http://www.blue.com/4 ex:alpha
+http://www.blue.com/4 http://www.green.com/7 ex:bravo
+http://www.blue.com/4 http://www.blue.com/3 ex:bravo
+http://www.blue.com/3 http://www.blue.com/2 ex:charlie
+http://www.blue.com/2 http://www.blue.com/1 ex:echo
+http://www.blue.com/3 http://www.blue.com/5 ex:bravo
+http://www.blue.com/6 http://www.blue.com/5 ex:delta
+http://www.blue.com/5 http://www.green.com/10 ex:bravo
