@@ -4,9 +4,10 @@
 
 ### Repo Contents: 
 * Virtual environment configuration file (Vagrantfile)
-* data from paper: directories dataBlue / dataGreen / dataRed, correspond to subgraphs colored white / gray / black (respectively) in paper
 * Source code (all python code)
 * Documentation of main code (including quick start instructions): RPQ_client_documentation.txt
+* data from paper: directories dataBlue / dataGreen / dataRed, correspond to subgraphs colored white / gray / black (respectively) in paper -- data files inside are RDF n-triples format.
+* additional data for local experiments: files graph_blue/green/red_3.txt contain the same data for experiments without using sparql (just processing RPQ on distributed graph data). The graphs in the "local" files are the same as in the RDF data above, they just use a custom format to work with legacy code.
 
 ### How to set up the virtual environment:
 1. Install VirtualBox (free Oracle virtualization product, see virtualbox.org)
