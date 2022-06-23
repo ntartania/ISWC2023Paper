@@ -1,4 +1,4 @@
-from parse import Lexer, Parser, Token, State, NFA, Handler, HandlerTree, NFATreeNode
+from parse import Lexer, Parser, Token, State, NFA, Handler, HandlerTree
 from random import randrange
 import numpy as np
 from functools import reduce
@@ -81,6 +81,59 @@ def loadgraph(gfname):
     grafile.close()
     return thegraph
 
+def loadgraphNT(gfname):
+    '''
+    load graph from file (n triples format)
+    input: file where each line has an edge as: node1 label node2 .   
+    nodes can be URI enclosed in <>, or literals
+    output: graph data structure: dict{ node:[(node2,label), (node3,label)...], node2:[] ...}
+    '''
+    grafile = open(gfname)
+    thegraph = dict()
+    cnt = 0
+    for line in grafile:
+        cnt += 1
+        #if (cnt % 10000 == 0): print(cnt)
+        if (len(line) <= 1): continue
+        tup = line.split()
+        node1, label, node2 = tup[0][1:-1], tup[1][1:-1], (tup[2][1:-1] if tup[2].startswith('<http') else tup[2])
+        thegraph.setdefault(node1, []).append((node2, label))
+        thegraph.setdefault(node2, [])
+    grafile.close()
+    return thegraph
+
+
+def loadgraph_w_rev(gfname):
+    '''
+    load graph from file
+    input: file where each line has an edge as: node1 node2 label
+    output: graph data structure: dict{ node:[(node2,label), (node3,label)...], node2:[] ...}
+    + reverse edges = edges with label ^label
+    '''
+    grafile = open(gfname)
+    thegraph = dict()
+    cnt = 0
+    for line in grafile:
+        cnt += 1
+        if (cnt % 10000 == 0): print(cnt)
+        if (len(line) <= 1): continue
+        tup = line.split()
+        node1, node2, label = tup[0], tup[1], tup[2]
+        reverse = "^"+label
+        thegraph.setdefault(node1, []).append((node2, label))
+        thegraph.setdefault(node2, []).append((node1, reverse))
+    grafile.close()
+    return thegraph
+
+
+def add_reverse_links(graph):
+    #print ("adding reverse links - graph size=", len(graph))
+    for node1 in graph:
+        for node2,edge in graph[node1]:
+            if (edge.startswith("^")):
+                continue
+            reverse = "^"+edge
+            graph.setdefault(node2, []).append((node1, reverse))
 
 def loadgraphTxt(edgeList):
     '''

@@ -2,7 +2,7 @@
 # vi: set ft=ruby :
 
 # virtuoso configuration and loading data
-$script = <<-SCRIPT
+$script_get_fusecki = <<-SCRIPT
 if [ -d "apache-jena-fuseki-4.5.0" ] ; then
   echo "Already have fuseki."
 else
@@ -15,34 +15,33 @@ fi
 
 SCRIPT
 
-$script1 = <<-SCRIPT
+$script_load_data = <<-SCRIPT
 mkdir mydb
-apache-jena-4.5.0/bin/tdb2.tdbloader --loc /home/vagrant/mydb /home/vagrant/data/blue.nt
+apache-jena-4.5.0/bin/tdb2.tdbloader --loc /home/vagrant/mydb /home/vagrant/data/alibaba.nt
 SCRIPT
 
 $exec1 = <<-SCRIPT
+echo "Starting Fusecki"
 cd apache-jena-fuseki-4.5.0/
 java -jar fuseki-server.jar --tdb2 --loc=/home/vagrant/mydb /blue &
 SCRIPT
 
-$script2 = <<-SCRIPT
-mkdir mydb
-apache-jena-4.5.0/bin/tdb2.tdbloader --loc /home/vagrant/mydb /home/vagrant/data/green.nt
-SCRIPT
-
 $exec2 = <<-SCRIPT
+echo "Starting Fusecki"
 cd apache-jena-fuseki-4.5.0/
 java -jar fuseki-server.jar --tdb2 --loc=/home/vagrant/mydb /green &
 SCRIPT
 
-$script3 = <<-SCRIPT
-mkdir mydb
-apache-jena-4.5.0/bin/tdb2.tdbloader --loc /home/vagrant/mydb /home/vagrant/data/red.nt
-SCRIPT
-
 $exec3 = <<-SCRIPT
+echo "Starting Fusecki"
 cd apache-jena-fuseki-4.5.0/
 java -jar fuseki-server.jar --tdb2 --loc=/home/vagrant/mydb /red &
+SCRIPT
+
+$exec4 = <<-SCRIPT
+echo "Starting Fusecki"
+cd apache-jena-fuseki-4.5.0/
+java -jar fuseki-server.jar --tdb2 --loc=/home/vagrant/mydb /yellow &
 SCRIPT
 
 # All Vagrant configuration is done below. The "2" in Vagrant.configure
@@ -65,36 +64,49 @@ Vagrant.configure("2") do |config|
     config.vm.network "forwarded_port", guest: 8080, host: 8891
     config.vm.network "forwarded_port", guest: 3030, host: 3331
     config.vm.synced_folder "./dataBlue", "/home/vagrant/data"
-    config.vm.provision "shell", inline: $script
-    config.vm.provision "shell", inline: $script1
+    config.vm.provision "shell", inline: $script_get_fusecki
+    config.vm.provision "shell", inline: $script_load_data
     config.vm.provision "shell", inline: $exec1, run: "always"
 
   end
 
   config.vm.define "ServerGreen2" do |config|
-    config.vm.box = "ubuntu/bionic64"
+    config.vm.box = "paanini/ubuntu1804-openjdk-11"
     config.vm.hostname = "Virtual21"
     config.vm.network "private_network", ip: "192.168.56.21"
     config.vm.network "forwarded_port", guest: 80, host: 8882
     config.vm.network "forwarded_port", guest: 8080, host: 8892
     config.vm.network "forwarded_port", guest: 3030, host: 3332
     config.vm.synced_folder "./dataGreen", "/home/vagrant/data"
-    config.vm.provision "shell", inline: $script
-    config.vm.provision "shell", inline: $script2
+    config.vm.provision "shell", inline: $script_get_fusecki
+    config.vm.provision "shell", inline: $script_load_data
     config.vm.provision "shell", inline: $exec2, run: "always"
   end
 
   config.vm.define "ServerRed2" do |config|
-    config.vm.box = "ubuntu/bionic64"
+    config.vm.box = "paanini/ubuntu1804-openjdk-11"
     config.vm.hostname = "Virtual31"
     config.vm.network "private_network", ip: "192.168.56.22"
     config.vm.network "forwarded_port", guest: 80, host: 8883
     config.vm.network "forwarded_port", guest: 8080, host: 8893
     config.vm.network "forwarded_port", guest: 3030, host: 3333
     config.vm.synced_folder "./dataRed", "/home/vagrant/data"
-    config.vm.provision "shell", inline: $script
-    config.vm.provision "shell", inline: $script3
+    config.vm.provision "shell", inline: $script_get_fusecki
+    config.vm.provision "shell", inline: $script_load_data
     config.vm.provision "shell", inline: $exec3, run: "always"
+  end
+
+  config.vm.define "ServerYellow2" do |config|
+    config.vm.box = "paanini/ubuntu1804-openjdk-11"
+    config.vm.hostname = "Virtual41"
+    config.vm.network "private_network", ip: "192.168.56.23"
+    config.vm.network "forwarded_port", guest: 80, host: 8884
+    config.vm.network "forwarded_port", guest: 8080, host: 8894
+    config.vm.network "forwarded_port", guest: 3030, host: 3334
+    config.vm.synced_folder "./dataYellow", "/home/vagrant/data"
+    config.vm.provision "shell", inline: $script_get_fusecki
+    config.vm.provision "shell", inline: $script_load_data
+    config.vm.provision "shell", inline: $exec4, run: "always"
   end
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
