@@ -14,10 +14,21 @@ Serveur: Simulates a server with a SPARQL endpoint. Loads graph of data from fil
 
 Server_proxy: subclass of Serveur, except instead of using data from local file, it acts as a proxy to a real remote SPARQL endpoint, and handles communication with that remote server.
 
+Server_proxy_async: subclass of Server_proxy, supports asynchronous (parallel) communication with servers.
+
 Client: This class takes the original query and manages all the logic of decomposing it and sending queries to servers (or fake servers) to access the distributed graph of data.
+
+AsyncClient: same as Client, but handles asynchronous / parallel communication with servers.
 
 
 - Quick start guide:
+
+(0) Run pre-written tests:
+    + from command line, run: python3 main_test.py
+    + See code in this file: 12 queries are loaded from a file, and run against distributed data at 4 SPARQL endpoints. The queries are also run against the full graph (union of the four datasets) loaded from a flat file, the results of the distributed and centralized execution are then compared. Currently, the 12 queries give correct results.
+    + Code to be added to run multi-source queries (currently also works) and RPQI (need to obtain meaningful queries, but seems to work correctly as well -- the function to run these queries on a local file needs tweaking).
+
+
 (1) Run experiments with distributed data in a set of local files:
     + The file format for the graph of data is a text file with one line per edge: from_node to_node edge_label (separated by spaces). This is basically n-triples with subject / object / predicate order and no final period. No understanding of RDF concepts such as non-URI values, blank nodes, etc.
     + Code:
@@ -32,9 +43,9 @@ Client: This class takes the original query and manages all the logic of decompo
         client.initiate([s1, s2, .., sn]) #set up client with all servers
         
         start_node_id = "http://www.domain_k.com/node_x" #start node for single-source query node 
-        regex = "<aaa><bbb>*|(<cc>|<dd>)<dd>*" #syntax for regular expressions: place separate tokens in <>, then use usual notation: nothing for concat, | and * for alt/star. Other operators not handled at this point.
+        regex = "<aaa><bbb>*|(<cc>|<dd>)<dd>*" #syntax for regular expressions: place separate tokens in <>, then use usual notation: nothing for concat, | and * for alt/star. ? and + should work, but not properly tested at this point.
 
-        results = c1.run_single_source_query(start_node_id, regex)
+        results = c1.run_query_partial(regex, start_node=start_node_id, end_node=None, logfile=None, prefixes=None, one_query=True)
         
         print(results) # Voila!
 
@@ -58,7 +69,7 @@ Client: This class takes the original query and manages all the logic of decompo
         start_node = "http://www.mydomain.com/the_node"
 
         #run query
-        results = client2.run_single_source_query(start_node, regex, prefixes)
+        results = c1.run_query_partial(regex, start_node=start_node_id, end_node=None, logfile=None, prefixes=prefixes, one_query=True)
         print(results)
 
   - API details:
@@ -74,15 +85,15 @@ Client: This class takes the original query and manages all the logic of decompo
         + qa_start_state indicates which state in the automaton is the start state [automaton state object]
         + qa_end_states indicates which states in the automaton are accepting (list of automaton state objects). This is not actually used anymore in latest code.
     
-  Server_proxy:
+  Server_proxy: (also applied for async version)
     - Constructor takes name, URL of SPARQl endpoint, and domain (URI prefix for local data)
     - Relevant querying methods override those in Serveur to access remote data rather than file data.
     - sparqlQuery(query): sends a SPARQL query to the proxied server and returns results as JSON object. This is where actual communication with server happens, and where SPARQL queries / responses are printed to standard output. 
 
-  Client:
+  Client: (also applies for async version)
     - Constructor takes arbitrary name
     - initiate(list_of_servers, logging=False): sets up the servers to be used to access data. logging parameter is optional, if set to true the query processing will be very verbose (used for debugging). Otherwise only the intermediate sparql queries/json responses are printed.
-    - run_single_source_query(start_node, regex, prefixes=None, one_query=True): run single-source RPQ with given start node and regular expression. Handles the full distributed query processing logic. Optional parameters: prefixes=dict of URI prfixes to be included in SPARQl queries, one_query: if set to false, the big SAPRQl query with the union (in the second query processing step) will be split into individual subqueries which are sent separately. May help with some servers that have problems with big queries, or may help with debugging when a specific subquery causes a problem.
+    - run_query_partial(regex, start_node=None, end_node=None, logfile=None, prefixes=None, one_query=True): run single-source, multi-source or boolean RPQ with given regular expression: the optional start/end nodes allow for single-, multi-soruce and boolean queries. Handles the full distributed query processing logic. Additional optional parameters: logfile: file to log communication with servers, prefixes=dict of URI prfixes to be included in SPARQl queries, one_query: if set to false, the big SPARQl query with the union (in the second query processing step) will be split into individual subqueries which are sent separately. May help with some servers that have problems with big queries, or may help with debugging when a specific subquery causes a problem.
 
     Internal logic methods of interest:
     - expand_re(regex): contains the logic to build the decomposed query (generalized automaton). Probably the most important and complex algorithm in this project.
