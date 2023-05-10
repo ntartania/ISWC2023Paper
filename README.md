@@ -1,6 +1,6 @@
-# ISWC2022Paper
+# ISWC2023Paper
 
-## Supplemental material for ISWC 2022 paper "Distributed Processing of Property Path Queries in pure SPARQL".
+## Supplemental material for ISWC 2023 paper "Distributed Processing of Property Path Queries in pure SPARQL".
 
 ### Repo Contents: 
 * Virtual environment configuration file (Vagrantfile)
@@ -22,15 +22,15 @@ Note that the first setup of the virtual environment will be slow due to downloa
 ### How to run tests (additional validation that does not appear in paper):
 
 - Run script main_test.py with Python 3 (you may need to install dependencies (numpy, json, jinja2, urllib...). All these dependencies can be installed with command: pip3 install <package name>)
-- What's happening? The Python code runs 12 single-source RPQ (property path queries) against the distributed data from four servers. The resutls are compared with those obtained from a RPQ on a centralized copy of the data. Currently only the number of responses is printed out to the terminal, but the lists of responses are checked. A log file for each query is also created, so that the communication (amount of data, time) is logged and can be used to create visualizations. The log also provides data to quantitatively compare query processing techniques.
+- What's happening? The Python code runs 12 single-source RPQ (property path queries) against the distributed data from four servers. The results are compared with those obtained from a RPQ on a centralized copy of the data. Currently only the number of responses is printed out to the terminal, but the lists of responses are checked. A log file for each query is also created, so that the communication (amount of data, time) is logged and can be used to create visualizations. The log also provides data to quantitatively compare query processing techniques.
 
 ### What more can you do?
 - Add more RDF data to the servers (you can figure out how to provision it in the Vagrantfile, or else add it manually using the Fuseki web interface (accessible at http://localhost:3331/ ... 3334).
 - Add more servers: see the configuration mechanism in the Vagrantfile: you can add another node to the network
 - for all this and more, see RPQ_client_documentation.txt
 
-### Notes: 
-  * The paper indicates that the SPARQL endpoints on the network were Virtuoso servers. Unfortunately Virtuoso is buggy and our queries don't work on Virtuoso: we would need to rewrite them to get rid of all multi-source queries. Managing "differently abled" endpoints is future work.
+### Note: 
+  
   * This github account and repository are not 100% anonymized: don't go poking around if you don't want to find out who it belongs to (i.e. for blind review).
 
 
